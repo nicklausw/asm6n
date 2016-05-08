@@ -2253,7 +2253,10 @@ void inesins(label *id, char **next) {
     nes_ptr = (byte)(inesmap_num << 4) | inesmir_num;
     output(&nes_ptr,1);
     
-    int nes_count_var = 9;
+    nes_ptr = (byte)inesmap_num & 0x0F;
+    output(&nes_ptr,1);
+    
+    int nes_count_var = 8;
     while (nes_count_var > 0) {
         output(&zero_ptr,1);
         nes_count_var--;
