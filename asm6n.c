@@ -1356,6 +1356,7 @@ void showhelp(void) {
     puts("");
     puts("asm6n " VERSION "\n");
     puts("Usage:  asm6n [-options] sourcefile [outputfile] [listfile]\n");
+    puts("    -i         Automatic iNES header insertion");
     puts("    -?          show this help");
     puts("    -l          create listing");
     puts("    -L          create verbose listing (expand REPT, MACRO)");
