@@ -84,16 +84,20 @@ typedef unsigned char byte;
 typedef void (*icfn)(label*,char**);
 
 int ines_include = 0;
-int inesprg_num = 0;
-int ineschr_num = 0;
-int inesmir_num = 0;
-int inesmap_num = 0;
+int ines_mode    = 0;
+int inesprg_num  = 0;
+int ineschr_num  = 0;
+int inesmir_num  = 0;
+int inesmap_num  = 0;
 
 void inesprg(label*, char**);
 void ineschr(label*, char**);
 void inesmir(label*, char**);
 void inesmap(label*, char**);
 void inesins(label*, char**);
+
+/* need to know this one early */
+void output(byte*,int);
 
 label *findlabel(char*);
 void initlabels();
@@ -1387,6 +1391,9 @@ int main(int argc,char **argv) {
                 case 'l':
                     listfilename=true_ptr;
                     break;
+                case 'i':
+                    ines_mode++;
+                    break;
                 case 'd':
                     if(argv[i][2]) {
                         if(!findlabel(&argv[i][2])) {
@@ -1464,6 +1471,15 @@ int main(int argc,char **argv) {
         addr=NOORIGIN;/*undefine origin */
         p=lastlabel;
         nameptr=inputfilename;
+        if (ines_mode) {
+            /* filler */
+            int nes_count_var = 0x0F;
+            byte zero_ptr = 0;
+            while (nes_count_var >= 0) {
+                output(&zero_ptr,1);
+                nes_count_var--;
+            }
+        }
         include(0,&nameptr);        /*start assembling srcfile */
         if(errmsg)
         {
@@ -1496,6 +1512,33 @@ int main(int argc,char **argv) {
     }
     if(listfile)
         listline(0,0);
+    
+    /* ines! */
+    if (ines_mode) {
+        
+        if (ines_include < 4) {
+            fputs("Warning: Make sure to use all basic iNES directives.\n", stderr);
+        }
+        
+        byte hdr [4] = { 'N', 'E', 'S', 0x1A };
+        byte nes_ptr;
+        FILE *ines_file = fopen(outputfilename, "r+");
+        fwrite(&hdr, 1, 4, ines_file);
+        
+        nes_ptr = (byte)inesprg_num;
+        fwrite(&nes_ptr,1,1,ines_file);
+    
+        nes_ptr = (byte)ineschr_num;
+        fwrite(&nes_ptr,1,1,ines_file);
+    
+        nes_ptr = (byte)(inesmap_num << 4) | inesmir_num;
+        fwrite(&nes_ptr,1,1,ines_file);
+    
+        nes_ptr = (byte)inesmap_num & 0xF0;
+        fwrite(&nes_ptr,1,1,ines_file);
+        
+        fclose(ines_file);
+    }
     return error ? EXIT_FAILURE : 0;
 }
 
@@ -2235,7 +2278,7 @@ void inesmap(label *id, char **next) {
 void inesins(label *id, char **next) {
     
     if (ines_include < 4) {
-        fputs("Warning: Make sure INESINS is used only after all other INES directives.\n", stderr);
+        fputs("Warning: Make sure INESINS is used only after all other iNES directives.\n", stderr);
     }
     
     byte hdr [4] = { 'N', 'E', 'S', 0x1A };

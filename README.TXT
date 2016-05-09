@@ -26,7 +26,8 @@ Usage:
         asm6n [-options] sourcefile [outputfile] [listfile]
 
 Options:
-
+        
+        -i         Automatic iNES header insertion
         -?         Show some help
         -l         Create listing
         -L         Create verbose listing (expand REPT, MACRO)
@@ -134,8 +135,12 @@ INESCHR - the number of CHR-ROM banks.
 INESMIR - mirroring.
 INESMAP - the mapper number.
 
-Due to asm6's structure, after using these, you also must use:
-INESINS - to tell asm6n to put the header in.
+asm6's structure requires you to explicitly tell it to insert the header.
+You can tell it to do so in the program with this directive:
+
+INESINS - inserts the header.
+
+Or the -i command line option inserts it for you.
 
 
 Now the other directives.
