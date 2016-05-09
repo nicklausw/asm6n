@@ -135,6 +135,8 @@ INESCHR - the number of CHR-ROM banks.
 INESMIR - mirroring.
 INESMAP - the mapper number.
 
+All of these default to 0.
+
 asm6's structure requires you to explicitly tell it to insert the header.
 You can tell it to do so in the program with this directive:
 
