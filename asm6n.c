@@ -1517,28 +1517,30 @@ int main(int argc,char **argv) {
     /* ines! */
     if (ines_mode) {
         
-        if (ines_include < 4) {
-            fputs("Warning: Make sure to use all basic iNES directives.\n", stderr);
+        if (!error) {
+            if (ines_include < 4) {
+                fputs("Warning: Make sure to use all basic iNES directives.\n", stderr);
+            }
+        
+            byte hdr [4] = { 'N', 'E', 'S', 0x1A };
+            byte nes_ptr;
+            FILE *ines_file = fopen(outputfilename, "r+");
+            fwrite(&hdr, 1, 4, ines_file);
+        
+            nes_ptr = (byte)inesprg_num;
+            fwrite(&nes_ptr,1,1,ines_file);
+    
+            nes_ptr = (byte)ineschr_num;
+            fwrite(&nes_ptr,1,1,ines_file);
+    
+            nes_ptr = (byte)(inesmap_num << 4) | inesmir_num;
+            fwrite(&nes_ptr,1,1,ines_file);
+    
+            nes_ptr = (byte)inesmap_num & 0xF0;
+            fwrite(&nes_ptr,1,1,ines_file);
+        
+            fclose(ines_file);
         }
-        
-        byte hdr [4] = { 'N', 'E', 'S', 0x1A };
-        byte nes_ptr;
-        FILE *ines_file = fopen(outputfilename, "r+");
-        fwrite(&hdr, 1, 4, ines_file);
-        
-        nes_ptr = (byte)inesprg_num;
-        fwrite(&nes_ptr,1,1,ines_file);
-    
-        nes_ptr = (byte)ineschr_num;
-        fwrite(&nes_ptr,1,1,ines_file);
-    
-        nes_ptr = (byte)(inesmap_num << 4) | inesmir_num;
-        fwrite(&nes_ptr,1,1,ines_file);
-    
-        nes_ptr = (byte)inesmap_num & 0xF0;
-        fwrite(&nes_ptr,1,1,ines_file);
-        
-        fclose(ines_file);
     }
     return error ? EXIT_FAILURE : 0;
 }
